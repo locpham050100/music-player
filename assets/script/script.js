@@ -1,10 +1,25 @@
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
 
+const player = $(".player");
+const cd = $(".cd");
 const playlist = $(".playlist");
+const heading = $("header h2");
+const cdThumb = $(".cd-thumb");
+const audio = $("#audio");
+const playBtn = $(".btn-toggle-play");
+const progress = $("#progress");
 
 const app = {
+  currentIndex: 0,
+  isPlaying: false,
   songs: [
+    {
+      name: "Chào mừng đến bình nguyên vô tận",
+      author: "ORB SAK SNEA - VUHUYNH",
+      image: "./assets/img/background.png",
+      path: "./assets/music/Chao_Mung_Den_Binh_Nguyen_Vo_Tan.mp3",
+    },
     {
       name: "Little do you know",
       author: "Alex & Sierra",
@@ -146,20 +161,81 @@ const app = {
     });
     $(".playlist").innerHTML = htmls.join("");
   },
+  defineProperties: function () {
+    Object.defineProperty(this, "currentSong", {
+      get: function () {
+        return this.songs[this.currentIndex];
+      },
+    });
+  },
   handleEvents: function () {
-    const cd = $(".cd");
+    const _this = this;
     const cdWidth = cd.offsetWidth;
 
+    // xu ly cd quay/dung
+    const cdThumbAnimate = cdThumb.animate([{ transform: "rotate(360deg)" }], {
+      duration: 10000, //quay trong 10s
+      iterations: Infinity, // vo han
+    });
+    cdThumbAnimate.pause();
+    // xu ly phong to thu nho CD
     document.onscroll = function () {
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
       const newCdWidth = cdWidth - scrollTop;
 
-      cd.style.width = newCdWidth > 0 ? newCdWidth + 'px' : 0;
+      cd.style.width = newCdWidth > 0 ? newCdWidth + "px" : 0;
       cd.style.opacity = newCdWidth / cdWidth;
     };
+    // xu ly click play
+    playBtn.onclick = function () {
+      if (_this.isPlaying) {
+        audio.pause();
+      } else {
+        audio.play();
+      }
+    };
+    //  khi song duoc play
+    audio.onplay = function () {
+      _this.isPlaying = true;
+      player.classList.add("playing");
+      cdThumbAnimate.play();
+    };
+    //   khi song bi pause
+    audio.onpause = function () {
+      _this.isPlaying = false;
+      player.classList.remove("playing");
+      cdThumbAnimate.pause();
+    };
+    //   khi tien do song thay doi
+    audio.ontimeupdate = function () {
+      if (audio.duration) {
+        const progressPercent = Math.floor(
+          (audio.currentTime / audio.duration) * 100
+        );
+        progress.value = progressPercent;
+      }
+    };
+    //   xu ly khi tua song
+    progress.onchange = function (e) {
+      const seekTime = (audio.duration / 100) * e.target.value;
+      audio.currentTime = seekTime;
+    };
+  },
+
+  loadCurrentSong: function () {
+    heading.textContent = this.currentSong.name;
+    cdThumb.style.backgroundImage = `url('${this.currentSong.image}')`;
+    audio.src = this.currentSong.path;
   },
   start: function () {
-    this.handleEvents(), this.render();
+    // dinh nghia ca thuoc tinh cho object
+    this.defineProperties(),
+      // lang nghe / xu li su kien
+      this.handleEvents(),
+      // tai thong tin bai hat dau tien vao UI khi chay app
+      this.loadCurrentSong(),
+      // render playlist
+      this.render();
   },
 };
 
