@@ -12,11 +12,13 @@ const progress = $("#progress");
 const nextBtn = $(".btn-next");
 const prevBtn = $(".btn-prev");
 const randomBtn = $(".btn-random");
+const repeatBtn = $(".btn-repeat");
 
 const app = {
   currentIndex: 0,
   isPlaying: false,
   isRandom: false,
+  isRepeat: false,
   songs: [
     {
       name: "Chào mừng đến bình nguyên vô tận",
@@ -226,26 +228,39 @@ const app = {
     };
     //  khi next song
     nextBtn.onclick = function () {
-        if (_this.isRandom) {
-            _this.playRandomSong()
-        } else {
-            _this.nextSong()
-        }
+      if (_this.isRandom) {
+        _this.playRandomSong();
+      } else {
+        _this.nextSong();
+      }
       audio.play();
     };
     //  khi prev song
     prevBtn.onclick = function () {
       if (_this.isRandom) {
-        _this.playRandomSong()
-    } else {
-        _this.prevSong()
-    }
+        _this.playRandomSong();
+      } else {
+        _this.prevSong();
+      }
       audio.play();
     };
     //  xu ly bat tat, khi random song
     randomBtn.onclick = function () {
       _this.isRandom = !_this.isRandom;
       randomBtn.classList.toggle("active", _this.isRandom);
+    };
+    // xu ly lap lai song
+    repeatBtn.onclick = function () {
+      _this.isRepeat = !_this.isRepeat;
+      repeatBtn.classList.toggle("active", _this.isRepeat);
+    };
+    // xu ly next song khi audio ended
+    audio.onended = function () {
+      if (_this.isRepeat) {
+        audio.play();
+      } else {
+        nextBtn.click();
+      }
     };
   },
 
