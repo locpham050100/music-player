@@ -148,9 +148,9 @@ const app = {
     },
   ],
   render: function () {
-    const htmls = this.songs.map((song) => {
+    const htmls = this.songs.map((song, index) => {
       return `
-        <div class="song">
+        <div class="song ${index === this.currentIndex ? "active" : ""}">
           <div
             class="thumb"
             style="background-image: url('${song.image}')">
@@ -234,6 +234,8 @@ const app = {
         _this.nextSong();
       }
       audio.play();
+      _this.render();
+      _this.scrollActiveSong();
     };
     //  khi prev song
     prevBtn.onclick = function () {
@@ -243,6 +245,8 @@ const app = {
         _this.prevSong();
       }
       audio.play();
+      _this.render();
+      _this.scrollActiveSong();
     };
     //  xu ly bat tat, khi random song
     randomBtn.onclick = function () {
@@ -264,6 +268,14 @@ const app = {
     };
   },
 
+  scrollActiveSong: function () {
+    setTimeout(() => {
+      $(".song.active").scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest'
+      });
+    }, 200);
+  },
   loadCurrentSong: function () {
     heading.textContent = this.currentSong.name;
     cdThumb.style.backgroundImage = `url('${this.currentSong.image}')`;
