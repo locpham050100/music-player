@@ -9,10 +9,14 @@ const cdThumb = $(".cd-thumb");
 const audio = $("#audio");
 const playBtn = $(".btn-toggle-play");
 const progress = $("#progress");
+const nextBtn = $(".btn-next");
+const prevBtn = $(".btn-prev");
+const randomBtn = $(".btn-random");
 
 const app = {
   currentIndex: 0,
   isPlaying: false,
+  isRandom: false,
   songs: [
     {
       name: "Chào mừng đến bình nguyên vô tận",
@@ -220,12 +224,57 @@ const app = {
       const seekTime = (audio.duration / 100) * e.target.value;
       audio.currentTime = seekTime;
     };
+    //  khi next song
+    nextBtn.onclick = function () {
+        if (_this.isRandom) {
+            _this.playRandomSong()
+        } else {
+            _this.nextSong()
+        }
+      audio.play();
+    };
+    //  khi prev song
+    prevBtn.onclick = function () {
+      if (_this.isRandom) {
+        _this.playRandomSong()
+    } else {
+        _this.prevSong()
+    }
+      audio.play();
+    };
+    //  xu ly bat tat, khi random song
+    randomBtn.onclick = function () {
+      _this.isRandom = !_this.isRandom;
+      randomBtn.classList.toggle("active", _this.isRandom);
+    };
   },
 
   loadCurrentSong: function () {
     heading.textContent = this.currentSong.name;
     cdThumb.style.backgroundImage = `url('${this.currentSong.image}')`;
     audio.src = this.currentSong.path;
+  },
+  nextSong: function () {
+    this.currentIndex++;
+    if (this.currentIndex >= this.songs.length) {
+      this.currentIndex = 0;
+    }
+    this.loadCurrentSong();
+  },
+  prevSong: function () {
+    this.currentIndex--;
+    if (this.currentIndex <= 0) {
+      this.currentIndex = this.songs.length - 1;
+    }
+    this.loadCurrentSong();
+  },
+  playRandomSong: function () {
+    let newIndex;
+    do {
+      newIndex = Math.floor(Math.random() * this.songs.length);
+    } while (newIndex == this.currentIndex);
+    this.currentIndex = newIndex;
+    this.loadCurrentSong();
   },
   start: function () {
     // dinh nghia ca thuoc tinh cho object
